@@ -13,7 +13,7 @@ resource "google_dns_record_set" "gitpod-dns" {
   for_each     = local.dns_list
   name         = each.key
   managed_zone = google_dns_managed_zone.gitpod-dns-zone[0].name
-  project      = var.gcp_project
+  project      = var.project
   type         = "A"
   ttl          = 5
 

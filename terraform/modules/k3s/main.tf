@@ -1,8 +1,8 @@
 provider "google" {
   credentials = var.credentials
-  project     = var.gcp_project
-  region      = var.gcp_region
-  zone        = var.gcp_zone
+  project     = var.project
+  region      = var.region
+  zone        = var.zone
 }
 
 resource "google_service_account" "gcp_instance" {
@@ -112,7 +112,7 @@ resource "random_string" "random" {
 resource "google_sql_database_instance" "gitpod" {
   name             = "sql-${var.name}-${random_string.random.result}"
   database_version = "MYSQL_5_7"
-  region           = var.gcp_region
+  region           = var.region
   settings {
     tier = "db-n1-standard-2"
   }

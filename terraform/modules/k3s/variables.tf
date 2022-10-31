@@ -6,16 +6,16 @@ variable "kubeconfig" {
 variable "credentials" {
 }
 
-variable "gcp_project" {
+variable "project" {
   description = "Google cloud Region to perform operations in"
 }
 
-variable "gcp_region" {
+variable "region" {
   description = "Google cloud Region to perform operations in"
   default     = "europe-west1"
 }
 
-variable "gcp_zone" {
+variable "zone" {
   description = "Google cloud Zone to perform operations in"
   default     = "europe-west1-b"
 }
