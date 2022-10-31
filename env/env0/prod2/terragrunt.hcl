@@ -8,4 +8,7 @@ inputs = {
 
 terraform {
     source = "../../../terraform/modules/env0"
+    backend "gcs" {
+        bucket  = "gitpod-tf-gke"
+    }
 }
