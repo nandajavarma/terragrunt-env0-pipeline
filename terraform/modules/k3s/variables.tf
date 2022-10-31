@@ -3,6 +3,9 @@ variable "kubeconfig" {
   default     = "./kubeconfig"
 }
 
+variable "credentials" {
+}
+
 variable "gcp_project" {
   description = "Google cloud Region to perform operations in"
 }
