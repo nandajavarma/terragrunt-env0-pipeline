@@ -3,5 +3,5 @@ include "root" {
 }
 
 terraform {
-    source = "../../../modules/k3s"
+    source = "../../../terraform/modules/k3s"
 }

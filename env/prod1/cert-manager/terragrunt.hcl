@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-    source = "../../../modules/cert-manager"
+    source = "../../../terraform/modules/cert-manager"
 }
 
 dependencies {
