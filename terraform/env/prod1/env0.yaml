@@ -1,0 +1,11 @@
+version: 1
+
+deploy:
+  steps:
+    terraformInit:
+      before:
+        - curl -sLS https://get.k3sup.dev | sh
+        - install k3sup /opt/
+
+
+ 
