@@ -6,4 +6,19 @@ terraform {
     source = "../../../modules/external-dns"
 }
 
-depends_on = ["../cluster"]
+generate "provider" {
+  path = "provider.tf"
+  if_exists = "overwrite_terragrunt"
+  contents = <<EOF
+provider "helm" {
+  
+  kubernetes {
+    config_path = var.kubeconfig
+  }
+}
+EOF
+}
+
+dependencies {
+  paths = ["../cluster"]
+}

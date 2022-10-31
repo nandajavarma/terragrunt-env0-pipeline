@@ -6,4 +6,6 @@ terraform {
     source = "../../../modules/cert-manager"
 }
 
-depends_on = ["../cluster"]
+dependencies {
+  paths = ["../cluster"]
+}

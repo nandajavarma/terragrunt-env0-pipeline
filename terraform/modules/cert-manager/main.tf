@@ -1,9 +1,3 @@
-provider "helm" {
-  kubernetes {
-    config_path = var.kubeconfig
-  }
-}
-
 variable "extraArgs" {
   description = "List of additional arguments for cert-manager"
   type        = list(any)

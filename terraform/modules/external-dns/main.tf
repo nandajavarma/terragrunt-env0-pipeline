@@ -1,41 +1,30 @@
-provider "helm" {
-  kubernetes {
-    config_path = var.kubeconfig
-  }
-}
+variable settings {}
+variable domain_name { default = "test"}
+variable kubeconfig { default = "conf"}
+variable txt_owner_id { default = "nightly-test" }
 
-variable "extraArgs" {
-  description = "List of additional arguments for cert-manager"
-  type        = list(any)
-  default = [
-    "--dns01-recursive-nameservers-only",
-    "--dns01-recursive-nameservers=8.8.8.8:53\\,1.1.1.1:53",
-  ]
-}
-
-#deploy cert manager
-resource "helm_release" "cert" {
-  name       = "cert-manager"
-  namespace  = "cert-manager"
+# External DNS Deployment using Helm
+resource "helm_release" "external_dns" {
+  name             = "external-dns"
+  repository       = "https://charts.bitnami.com"
+  chart            = "external-dns"
+  namespace        = "external-dns"
   create_namespace = true
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
-  wait       = true
-  set {
-    name  = "version"
-    value = "v1.8.0"
-  }
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
 
   set {
-    name  = "extraArgs"
-    value = "{${join(",", var.extraArgs)}}"
+    name  = "domainFilters[0]"
+    value = var.domain_name
+  }
+  set {
+    name = "txt-owner-id"
+    value = var.txt_owner_id
   }
 
-  provisioner "local-exec" {
-    command = "echo 'Waiting for cert-manager validating webhook to get its CA injected, so we can start to apply custom resources ...' && sleep 60"
+  dynamic "set" {
+    for_each = var.settings
+    content {
+      name = set.value["name"]
+      value = set.value["value"]
+    }
   }
 }
