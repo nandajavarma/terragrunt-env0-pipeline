@@ -15,10 +15,11 @@ resource "tls_private_key" "ssh" {
   rsa_bits  = 4096
 }
 
-resource "local_file" "ssh_private_key_pem" {
-  content         = tls_private_key.ssh.private_key_pem
-  filename        = ".ssh/google_compute_engine"
-  file_permission = "0600"
+resource "local_sensitive_file" "ssh_private_key_pem" {
+  filename = pathexpand("~/.ssh/google_compute_engine")
+  file_permission = "600"
+  directory_permission = "700"
+  content = tls_private_key.ssh.private_key_pem
 }
 
 resource "google_compute_firewall" "k3s-firewall" {
@@ -38,6 +39,11 @@ resource "google_compute_firewall" "k3s-firewall" {
   allow {
     protocol = "tcp"
     ports    = ["443"]
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
   }
 
   target_tags = ["k3s"]
@@ -66,7 +72,7 @@ resource "google_compute_instance" "k3s_master_instance" {
 
   depends_on = [
     google_compute_firewall.k3s-firewall,
-    local_file.ssh_private_key_pem,
+    local_sensitive_file.ssh_private_key_pem,
     google_service_account.gcp_instance,
   ]
   metadata = {
@@ -89,16 +95,15 @@ resource "time_sleep" "wait_for_master" {
 resource "null_resource" "k3sup_install" {
   depends_on = [time_sleep.wait_for_master]
 
-  provisioner "local-exec" {
+    provisioner "local-exec" {
     command = <<EOT
-              k3sup install \
-              --ip ${google_compute_instance.k3s_master_instance.network_interface[0].access_config[0].nat_ip} \
-              --ssh-key .ssh/google_compute_engine \
-              --context k3s \
-              --user gitpod \
-              --local-path ${var.kubeconfig} \
-              --k3s-version ${var.cluster_version} \
-              --k3s-extra-args=" --disable=traefik --node-label=gitpod.io/workload_meta=true --node-label=gitpod.io/workload_ide=true --node-label=gitpod.io/workload_workspace_services=true --node-label=gitpod.io/workload_workspace_regular=true --node-label=gitpod.io/workload_workspace_headless=true" \
+            k3sup install \
+            --ip ${google_compute_instance.k3s_master_instance.network_interface[0].access_config[0].nat_ip} \
+            --context k3s \
+            --ssh-key ~/.ssh/google_compute_engine \
+            --user gitpod \
+            --local-path ${var.kubeconfig} \
+            --k3s-extra-args=" --disable=traefik --node-label=gitpod.io/workload_meta=true --node-label=gitpod.io/workload_ide=true --node-label=gitpod.io/workload_workspace_services=true --node-label=gitpod.io/workload_workspace_regular=true --node-label=gitpod.io/workload_workspace_headless=true" \
           EOT
   }
 }
